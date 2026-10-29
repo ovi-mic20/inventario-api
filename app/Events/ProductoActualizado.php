@@ -2,35 +2,29 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Events\Dispatchable;
+use App\Models\Producto; 
+use Illuminate\Broadcasting\Channel; 
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast; 
+use Illuminate\Foundation\Events\Dispatchable; 
 use Illuminate\Queue\SerializesModels;
 
-class ProductoActualizado
+class ProductoActualizado implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+    use Dispatchable, SerializesModels;
+    public array $producto;
+    public string $accion;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct()
+    public function __construct(Producto $producto, string $accion)
     {
-        //
+        $this->producto = $producto->only('id', 'nombre', 'precio', 'stock');
+        $this->accion = $accion;
     }
-
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, Channel>
-     */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('channel-name'),
-        ];
+        return [new Channel('inventario')];
+    }
+    public function broadcastAs(): string
+    {
+        return 'producto.actualizado';
     }
 }
